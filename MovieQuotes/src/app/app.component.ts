@@ -4,8 +4,8 @@ import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/databa
 interface MovieQuote {
   movie: string;
   quote: string;
+  $key?: string;
 }
-
 
 
 @Component({
@@ -14,24 +14,28 @@ interface MovieQuote {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+
+  readonly quotesPath = 'quotes';
+
   formMovieQuote: MovieQuote = {
     movie: '',
     quote: ''
   };
+  // local only solution
+  // movieQuotes: Array<MovieQuote> = [
+  //   { 'movie': 'Rocky', 'quote': 'Yo Adrian' },
+  //   { 'movie': 'Terminator', 'quote': 'I\'ll be back' },
+  //   { 'movie': 'Titanic', 'quote': 'I\'m the king of the world!' },
+  //   { 'movie': 'The Princess Bride', 'quote': 'Hello, My name is Inigo Montoya. You killed my father. Prepare to die' },
+  // ];
 
-  movieQuotes: Array<MovieQuote> = [
-    { 'movie': 'Rocky', 'quote': 'Yo Adrian' },
-    { 'movie': 'Terminator', 'quote': 'I\'ll be back' },
-    { 'movie': 'Titanic', 'quote': 'I\'m the king of the world!' },
-    { 'movie': 'The Princess Bride', 'quote': 'Hello, My name is Inigo Montoya. You killed my father. Prepare to die' },
-  ];
+  movieQuotesStream: FirebaseListObservable<MovieQuote[]>;
 
-  constructor(db: AngularFireDatabase) {
-
+  constructor( private db: AngularFireDatabase ) {
+    this.movieQuotesStream = db.list(this.quotesPath);
   }
 
   ngOnInit(): void {
-
   }
 
   ngOnDestroy(): void {
@@ -40,10 +44,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     // console.log('you wish to submit:', this.formMovieQuote );
-    this.movieQuotes.unshift(this.formMovieQuote);
-    this.formMovieQuote = {
-      movie: '',
-      quote: ''
-    };
+    // local only solution
+    // this.movieQuotes.unshift(this.formMovieQuote);
+    try {
+      this.movieQuotesStream.push( this.formMovieQuote );
+      this.formMovieQuote = {
+        movie: '',
+        quote: ''
+      };
+    } catch (e) {
+      console.log( 'Form error:' + e );
+    }
+    
   }
 }
