@@ -48,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // this.movieQuotes.unshift(this.formMovieQuote);
     try {
       this.movieQuotesStream.push( this.formMovieQuote );
+      // conssole.log( this.movieQuotesStream );
       this.formMovieQuote = {
         movie: '',
         quote: ''
